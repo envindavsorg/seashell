@@ -1,0 +1,76 @@
+name: Build macOS
+
+# Build a universal (Apple Silicon + Intel) .dmg.
+#  • Push a tag like `v0.1.0`  -> builds and creates a DRAFT GitHub Release with the .dmg attached.
+#  • Run manually (workflow_dispatch) -> builds and uploads the .dmg as a workflow artifact (no release).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # required for tauri-action to create the release
+
+jobs:
+  build-macos:
+    runs-on: macos-latest # Apple Silicon runner; we cross-compile to a universal binary
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup Rust (with both macOS targets for the universal build)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build app + release (on tags) / build only (manual)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # --- Code signing & notarization (optional) ---
+          # Add these repository secrets to ship a signed, notarized, Gatekeeper-friendly build:
+          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          # APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          # APPLE_ID: ${{ secrets.APPLE_ID }}
+          # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          args: --target universal-apple-darwin
+          # Only create a release when the run was triggered by a tag.
+          tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+          releaseName: "seashell ${{ github.ref_name }}"
+          releaseBody: |
+            Universal macOS build (Apple Silicon + Intel).
+
+            Download the `.dmg` below, open it, and drag **seashell** to Applications.
+            On first launch, right-click the app → **Open** (the build isn't notarized yet).
+          releaseDraft: true
+          prerelease: false
+
+      - name: Upload .dmg artifact (manual runs only)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: seashell-macos-universal
+          path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: warn
