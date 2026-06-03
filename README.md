@@ -7,6 +7,7 @@
 Structured controls on the left, your real shell config — live — on the right.
 Nothing ever touches disk until you've seen the diff. Built for developers who trust their tools.
 
+[![Website](https://img.shields.io/badge/website-seashell.cuzeacflorin.fr-3B9C7A)](https://seashell.cuzeacflorin.fr)
 ![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-stable-CE412B?logo=rust&logoColor=white)
@@ -33,7 +34,7 @@ Nothing ever touches disk until you've seen the diff. Built for developers who t
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-> 💡 The presentation site lives in [`landing/`](landing/) — a small Vite + React app (minimalist, all‑lowercase, **Geist Pixel Square**). Run it with `cd landing && pnpm install && pnpm dev`, or `pnpm build` for static output in `landing/dist/`.
+> 💡 **Live at [seashell.cuzeacflorin.fr](https://seashell.cuzeacflorin.fr).** The source is in [`landing/`](landing/) — a small Vite + React app (minimalist, all‑lowercase, **Geist Pixel Square**). Run it with `cd landing && pnpm install && pnpm dev`, or `pnpm build` for static output in `landing/dist/`.
 
 ---
 
