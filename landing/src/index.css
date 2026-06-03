@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"] *));
+
+/* Geist Pixel — the "Square" variant (self-hosted from the OFL-licensed geist package).
+   To use another variant, copy its woff2 from geist/dist/fonts/geist-pixel/ and swap the family. */
+@font-face {
+  font-family: "Geist Pixel Square";
+  src: url("./fonts/GeistPixel-Square.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-pixel: "Geist Pixel Square", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* dark (default) */
+  --bg: #0e1014;
+  --surface: #15181e;
+  --border: #262b35;
+  --fg: #e6e9ef;
+  --muted: #8a92a1;
+  --faint: #4b525e;
+  --brand: #3b9c7a;
+  --brand-soft: rgba(59, 156, 122, 0.14);
+  --grid: rgba(255, 255, 255, 0.025);
+}
+
+[data-theme="light"] {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --border: #e4e7ec;
+  --fg: #14171c;
+  --muted: #6b7280;
+  --faint: #b3b9c4;
+  --brand: #2c7a5f;
+  --brand-soft: rgba(44, 122, 95, 0.1);
+  --grid: rgba(0, 0, 0, 0.03);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-brand: var(--brand);
+  --font-pixel: var(--font-pixel);
+  --font-mono: var(--font-mono);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-pixel);
+    /* the délire: everything lowercase */
+    text-transform: lowercase;
+    -webkit-font-smoothing: antialiased;
+    /* faint pixel grid */
+    background-image: radial-gradient(var(--grid) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  /* technical bits stay mono + keep their real casing */
+  code,
+  pre,
+  kbd,
+  input,
+  .mono {
+    font-family: var(--font-mono);
+    text-transform: none;
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: var(--brand-soft);
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border: 2px solid var(--bg);
+    border-radius: 0;
+  }
+}
+
+@layer utilities {
+  .hairline {
+    border: 1px solid var(--border);
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

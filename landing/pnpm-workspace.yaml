@@ -1,0 +1,4 @@
+# Makes landing/ a self-contained pnpm project (separate from the Tauri app at the repo root)
+# and approves esbuild's build script (needed by Vite).
+allowBuilds:
+  esbuild: true
