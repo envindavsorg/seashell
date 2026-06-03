@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐚 seashell
+# seashell
 
 ### A visual, safe editor for your `~/.zshrc`
 
