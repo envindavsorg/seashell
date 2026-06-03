@@ -1,15 +1,21 @@
-import { FolderOpen, ArrowCounterClockwise as RotateCcw, GitDiff as GitCompare, Trash as Trash2, Clock } from "@phosphor-icons/react";
+import {
+  Clock,
+  FolderOpen,
+  GitDiff as GitCompare,
+  ArrowCounterClockwise as RotateCcw,
+  Trash as Trash2,
+} from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
   SheetDescription,
   SheetFooter,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import { absoluteTime, formatBytes, relativeTime } from "@/lib/format";
 import type { BackupInfo } from "@/lib/tauri";
-import { formatBytes, relativeTime, absoluteTime } from "@/lib/format";
 
 interface BackupsSheetProps {
   open: boolean;
@@ -64,10 +70,20 @@ export function BackupsSheet({
                     </div>
                   </div>
                   <div className="mt-2 flex items-center gap-1">
-                    <Button variant="outline" size="sm" className="h-7 flex-1 gap-1.5 text-[11.5px]" onClick={() => onViewDiff(b)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 flex-1 gap-1.5 text-[11.5px]"
+                      onClick={() => onViewDiff(b)}
+                    >
                       <GitCompare className="h-3.5 w-3.5" /> Diff
                     </Button>
-                    <Button variant="outline" size="sm" className="h-7 flex-1 gap-1.5 text-[11.5px]" onClick={() => onRestore(b)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 flex-1 gap-1.5 text-[11.5px]"
+                      onClick={() => onRestore(b)}
+                    >
                       <RotateCcw className="h-3.5 w-3.5" /> Restore
                     </Button>
                     <Button

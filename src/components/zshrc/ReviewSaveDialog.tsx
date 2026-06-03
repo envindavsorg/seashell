@@ -1,25 +1,25 @@
-import { useMemo } from "react";
 import {
-  FloppyDisk as Save,
-  ClockCounterClockwise as FolderClock,
   CheckCircle,
-  Warning,
-  Copy,
   CircleNotch,
+  Copy,
+  ClockCounterClockwise as FolderClock,
+  FloppyDisk as Save,
+  Warning,
 } from "@phosphor-icons/react";
+import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { DiffView } from "./DiffView";
-import { diffLines } from "@/lib/zshrc/diff";
 import type { ZshValidation } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
+import { diffLines } from "@/lib/zshrc/diff";
+import { DiffView } from "./DiffView";
 
 interface ReviewSaveDialogProps {
   open: boolean;
@@ -79,8 +79,10 @@ export function ReviewSaveDialog({
             className={cn(
               "mb-2 flex items-start gap-2 rounded-[7px] border px-2.5 py-1.5 text-[12px]",
               validating && "border-border bg-secondary/50 text-muted-foreground",
-              !validating && validation?.ok && "border-[var(--brand)]/30 bg-[var(--brand-soft)] text-[var(--brand)]",
-              !validating && invalid && "border-destructive/40 bg-destructive/10 text-destructive"
+              !validating &&
+                validation?.ok &&
+                "border-[var(--brand)]/30 bg-[var(--brand-soft)] text-[var(--brand)]",
+              !validating && invalid && "border-destructive/40 bg-destructive/10 text-destructive",
             )}
           >
             {validating ? (
@@ -110,13 +112,19 @@ export function ReviewSaveDialog({
             <DiffView oldText={oldText} newText={newText} />
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
-            <FolderClock className="h-3.5 w-3.5" />
-            A backup will be saved to <span className="font-mono">~/.zshrc.backups/</span> before writing.
+            <FolderClock className="h-3.5 w-3.5" />A backup will be saved to{" "}
+            <span className="font-mono">~/.zshrc.backups/</span> before writing.
           </div>
         </div>
 
         <DialogFooter className="border-t border-border px-5 py-3 sm:justify-between">
-          <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={onCopyDiff} disabled={stats.unchanged}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground"
+            onClick={onCopyDiff}
+            disabled={stats.unchanged}
+          >
             <Copy className="h-3.5 w-3.5" /> Copy diff
           </Button>
           <div className="flex gap-2">
@@ -130,7 +138,7 @@ export function ReviewSaveDialog({
                 "gap-1.5",
                 invalid
                   ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  : "bg-[var(--brand)] text-[var(--primary-foreground)] hover:bg-[var(--brand)]/90"
+                  : "bg-[var(--brand)] text-[var(--primary-foreground)] hover:bg-[var(--brand)]/90",
               )}
             >
               <Save className="h-4 w-4" />

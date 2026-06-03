@@ -1,10 +1,22 @@
 import { Reveal } from "./Reveal";
 
 const CHECKS: { title: string; body: string }[] = [
-  { title: "byte-exact round-trip", body: "untouched blocks re-emit verbatim. only what you edit is regenerated." },
-  { title: "atomic, symlink-aware writes", body: "temp → fsync → rename, preserving mode. writes through stow / chezmoi symlinks." },
-  { title: "automatic backups", body: "the file is copied to ~/.zshrc.backups/ before every write." },
-  { title: "graceful fallback", body: "anything unmodelable drops to source-only editing. your bytes are safe." },
+  {
+    title: "byte-exact round-trip",
+    body: "untouched blocks re-emit verbatim. only what you edit is regenerated.",
+  },
+  {
+    title: "atomic, symlink-aware writes",
+    body: "temp → fsync → rename, preserving mode. writes through stow / chezmoi symlinks.",
+  },
+  {
+    title: "automatic backups",
+    body: "the file is copied to ~/.zshrc.backups/ before every write.",
+  },
+  {
+    title: "graceful fallback",
+    body: "anything unmodelable drops to source-only editing. your bytes are safe.",
+  },
 ];
 
 export function Safety() {
@@ -17,8 +29,8 @@ export function Safety() {
             it never corrupts your file
           </h2>
           <p className="mt-5 mono text-[13px] leading-relaxed text-muted">
-            safety isn't a feature here — it's the architecture. a test suite proves it against a real
-            .zshrc on every change.
+            safety isn't a feature here — it's the architecture. a test suite proves it against a
+            real .zshrc on every change.
           </p>
           <div className="mt-6 border border-border bg-bg p-4 mono text-[12.5px]">
             <span className="text-faint">{"// the invariant, enforced by tests"}</span>

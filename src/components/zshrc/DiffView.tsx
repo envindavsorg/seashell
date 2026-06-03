@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { diffLines } from "@/lib/zshrc/diff";
 import { cn } from "@/lib/utils";
+import { diffLines } from "@/lib/zshrc/diff";
 
 export function DiffView({ oldText, newText }: { oldText: string; newText: string }) {
   const result = useMemo(() => diffLines(oldText, newText), [oldText, newText]);
@@ -26,7 +26,7 @@ export function DiffView({ oldText, newText }: { oldText: string; newText: strin
               className={cn(
                 "flex items-baseline",
                 r.kind === "add" && "bg-[var(--brand-soft)]",
-                r.kind === "del" && "bg-destructive/12"
+                r.kind === "del" && "bg-destructive/12",
               )}
             >
               <span className="w-10 shrink-0 select-none pr-2 text-right text-muted-foreground/35 tnum">
@@ -39,7 +39,7 @@ export function DiffView({ oldText, newText }: { oldText: string; newText: strin
                 className={cn(
                   "w-4 shrink-0 select-none text-center",
                   r.kind === "add" && "text-[var(--brand)]",
-                  r.kind === "del" && "text-destructive"
+                  r.kind === "del" && "text-destructive",
                 )}
               >
                 {r.kind === "add" ? "+" : r.kind === "del" ? "−" : ""}

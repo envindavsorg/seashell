@@ -1,25 +1,25 @@
-import { useState, type ReactNode } from "react";
 import {
-  CaretUp as ChevronUp,
+  BracketsCurly as Braces,
   CaretDown as ChevronDown,
   CaretRight as ChevronRight,
+  CaretUp as ChevronUp,
+  FileArrowDown as FileInput,
+  TreeStructure as FolderTree,
+  Info,
+  Plus,
+  PuzzlePiece as Puzzle,
+  ShieldCheck,
+  Function as SquareFunction,
   Trash as Trash2,
   X,
-  Plus,
-  Function as SquareFunction,
   Lightning as Zap,
-  PuzzlePiece as Puzzle,
-  BracketsCurly as Braces,
-  TreeStructure as FolderTree,
-  FileArrowDown as FileInput,
-  ShieldCheck,
-  Info,
 } from "@phosphor-icons/react";
+import { type ReactNode, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Kbd } from "./Kbd";
-import type { Block, Category } from "@/lib/zshrc/parser";
 import { cn } from "@/lib/utils";
+import type { Block, Category } from "@/lib/zshrc/parser";
+import { Kbd } from "./Kbd";
 
 export interface RowProps {
   block: Block;
@@ -71,7 +71,7 @@ function Field({
         "min-w-0 rounded-[5px] border border-transparent bg-transparent px-1.5 py-0.5 text-[12.5px] outline-none transition-colors",
         "hover:border-border/70 focus:border-[var(--brand)] focus:bg-background",
         mono && "font-mono",
-        className
+        className,
       )}
     />
   );
@@ -90,11 +90,15 @@ function RowShell({
   return (
     <div
       onClick={onSelect}
-      style={{ boxShadow: selected ? "inset 2px 0 0 0 var(--brand)" : `inset 2px 0 0 0 color-mix(in srgb, ${RAIL[block.category]} 35%, transparent)` }}
+      style={{
+        boxShadow: selected
+          ? "inset 2px 0 0 0 var(--brand)"
+          : `inset 2px 0 0 0 color-mix(in srgb, ${RAIL[block.category]} 35%, transparent)`,
+      }}
       className={cn(
         "group relative flex items-center gap-1.5 rounded-[7px] border px-2 py-1 pl-2.5 transition-colors",
         selected ? "border-border bg-accent/70" : "border-transparent hover:bg-accent/50",
-        !block.enabled && "opacity-55"
+        !block.enabled && "opacity-55",
       )}
     >
       {(block.dirty || block.created) && (
@@ -110,13 +114,37 @@ function RowShell({
       )}
 
       <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-        <button onClick={(e) => { e.stopPropagation(); onMove(-1); }} className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground" title="Move up">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onMove(-1);
+          }}
+          className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground"
+          title="Move up"
+        >
           <ChevronUp className="h-3.5 w-3.5" />
         </button>
-        <button onClick={(e) => { e.stopPropagation(); onMove(1); }} className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground" title="Move down">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onMove(1);
+          }}
+          className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground"
+          title="Move down"
+        >
           <ChevronDown className="h-3.5 w-3.5" />
         </button>
-        <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="rounded p-1 text-muted-foreground/60 hover:bg-destructive/15 hover:text-destructive" title="Delete">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="rounded p-1 text-muted-foreground/60 hover:bg-destructive/15 hover:text-destructive"
+          title="Delete"
+        >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -149,9 +177,22 @@ function AliasRow(props: RowProps) {
   const { block, onUpdate } = props;
   return (
     <RowShell {...props}>
-      <Field value={block.name ?? ""} onChange={(v) => onUpdate({ name: v })} placeholder="name" className="w-24 shrink-0 font-semibold" autoFocus={block.created} />
-      <span className="shrink-0 select-none font-mono text-[12.5px] text-muted-foreground/50">=</span>
-      <Field value={block.value ?? ""} onChange={(v) => onUpdate({ value: v })} placeholder="command" className="flex-1" />
+      <Field
+        value={block.name ?? ""}
+        onChange={(v) => onUpdate({ name: v })}
+        placeholder="name"
+        className="w-24 shrink-0 font-semibold"
+        autoFocus={block.created}
+      />
+      <span className="shrink-0 select-none font-mono text-[12.5px] text-muted-foreground/50">
+        =
+      </span>
+      <Field
+        value={block.value ?? ""}
+        onChange={(v) => onUpdate({ value: v })}
+        placeholder="command"
+        className="flex-1"
+      />
       <LiteralHint value={block.value ?? ""} />
     </RowShell>
   );
@@ -162,13 +203,30 @@ function EnvRow(props: RowProps) {
   return (
     <RowShell {...props}>
       {block.kind === "export" ? (
-        <span className="shrink-0 select-none rounded-[4px] bg-secondary px-1 py-px font-mono text-[10px] text-muted-foreground">export</span>
+        <span className="shrink-0 select-none rounded-[4px] bg-secondary px-1 py-px font-mono text-[10px] text-muted-foreground">
+          export
+        </span>
       ) : (
-        <span className="shrink-0 select-none font-mono text-[10px] text-muted-foreground/40">set</span>
+        <span className="shrink-0 select-none font-mono text-[10px] text-muted-foreground/40">
+          set
+        </span>
       )}
-      <Field value={block.name ?? ""} onChange={(v) => onUpdate({ name: v })} placeholder="KEY" className="w-28 shrink-0 font-semibold" autoFocus={block.created} />
-      <span className="shrink-0 select-none font-mono text-[12.5px] text-muted-foreground/50">=</span>
-      <Field value={block.value ?? ""} onChange={(v) => onUpdate({ value: v })} placeholder="value" className="flex-1" />
+      <Field
+        value={block.name ?? ""}
+        onChange={(v) => onUpdate({ name: v })}
+        placeholder="KEY"
+        className="w-28 shrink-0 font-semibold"
+        autoFocus={block.created}
+      />
+      <span className="shrink-0 select-none font-mono text-[12.5px] text-muted-foreground/50">
+        =
+      </span>
+      <Field
+        value={block.value ?? ""}
+        onChange={(v) => onUpdate({ value: v })}
+        placeholder="value"
+        className="flex-1"
+      />
       <LiteralHint value={block.value ?? ""} />
     </RowShell>
   );
@@ -187,10 +245,17 @@ function OptionRow(props: RowProps) {
     <RowShell {...props}>
       <div className="flex flex-1 flex-wrap items-center gap-1">
         {options.map((opt, i) => (
-          <span key={i} className="flex items-center gap-1 rounded-[5px] border border-border bg-secondary px-1.5 py-0.5 font-mono text-[11.5px]">
+          <span
+            key={i}
+            className="flex items-center gap-1 rounded-[5px] border border-border bg-secondary px-1.5 py-0.5 font-mono text-[11.5px]"
+          >
             {opt}
             <button
-              onClick={(e) => { e.stopPropagation(); onUpdate({ options: options.filter((_, j) => j !== i) }); }}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdate({ options: options.filter((_, j) => j !== i) });
+              }}
               className="text-muted-foreground/50 hover:text-destructive"
             >
               <X className="h-2.5 w-2.5" />
@@ -227,8 +292,16 @@ function KeybindingRow(props: RowProps) {
     // e.g. "bindkey -e" — single field
     return (
       <RowShell {...props}>
-        <span className="shrink-0 select-none font-mono text-[10px] text-muted-foreground/40">bindkey</span>
-        <Field value={text.replace(/^bindkey\s*/, "")} onChange={(v) => onUpdate({ text: `bindkey ${v}` })} placeholder="-e" className="flex-1" autoFocus={block.created} />
+        <span className="shrink-0 select-none font-mono text-[10px] text-muted-foreground/40">
+          bindkey
+        </span>
+        <Field
+          value={text.replace(/^bindkey\s*/, "")}
+          onChange={(v) => onUpdate({ text: `bindkey ${v}` })}
+          placeholder="-e"
+          className="flex-1"
+          autoFocus={block.created}
+        />
       </RowShell>
     );
   }
@@ -238,7 +311,9 @@ function KeybindingRow(props: RowProps) {
   const rebuild = (c: string, w: string) => onUpdate({ text: `bindkey ${flag}${c} ${w}` });
   return (
     <RowShell {...props}>
-      <span className="shrink-0 select-none font-mono text-[10px] text-muted-foreground/40">bindkey</span>
+      <span className="shrink-0 select-none font-mono text-[10px] text-muted-foreground/40">
+        bindkey
+      </span>
       <span className="rounded-[5px] border border-border bg-secondary px-1.5 py-0.5 font-mono text-[11.5px]">
         <input
           value={chord}
@@ -248,7 +323,12 @@ function KeybindingRow(props: RowProps) {
         />
       </span>
       <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/40" />
-      <Field value={widget} onChange={(v) => rebuild(chord, v)} placeholder="widget" className="flex-1" />
+      <Field
+        value={widget}
+        onChange={(v) => rebuild(chord, v)}
+        placeholder="widget"
+        className="flex-1"
+      />
     </RowShell>
   );
 }
@@ -286,16 +366,21 @@ function CodeBlockRow(props: RowProps) {
   const { block, onUpdate, selected } = props;
   const [open, setOpen] = useState(false);
   const { Icon, label } = codeMeta(block);
-  const lineCount = (block.dirty || block.created ? (block.text ?? "").split("\n").length : block.raw.length);
+  const lineCount =
+    block.dirty || block.created ? (block.text ?? "").split("\n").length : block.raw.length;
 
   return (
     <div
       onClick={props.onSelect}
-      style={{ boxShadow: selected ? "inset 2px 0 0 0 var(--brand)" : `inset 2px 0 0 0 color-mix(in srgb, ${RAIL[block.category]} 35%, transparent)` }}
+      style={{
+        boxShadow: selected
+          ? "inset 2px 0 0 0 var(--brand)"
+          : `inset 2px 0 0 0 color-mix(in srgb, ${RAIL[block.category]} 35%, transparent)`,
+      }}
       className={cn(
         "group relative rounded-[7px] border transition-colors",
         selected ? "border-border bg-accent/70" : "border-transparent hover:bg-accent/50",
-        !block.enabled && "opacity-55"
+        !block.enabled && "opacity-55",
       )}
     >
       {(block.dirty || block.created) && (
@@ -303,7 +388,11 @@ function CodeBlockRow(props: RowProps) {
       )}
       <div className="flex items-center gap-1.5 px-2 py-1 pl-2.5">
         <button
-          onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((o) => !o);
+          }}
           className="shrink-0 rounded p-0.5 text-muted-foreground/60 hover:text-foreground"
         >
           <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-90")} />
@@ -316,13 +405,37 @@ function CodeBlockRow(props: RowProps) {
           </span>
         )}
         <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-          <button onClick={(e) => { e.stopPropagation(); props.onMove(-1); }} className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground" title="Move up">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              props.onMove(-1);
+            }}
+            className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground"
+            title="Move up"
+          >
             <ChevronUp className="h-3.5 w-3.5" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); props.onMove(1); }} className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground" title="Move down">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              props.onMove(1);
+            }}
+            className="rounded p-1 text-muted-foreground/60 hover:bg-secondary hover:text-foreground"
+            title="Move down"
+          >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
-          <button onClick={(e) => { e.stopPropagation(); props.onDelete(); }} className="rounded p-1 text-muted-foreground/60 hover:bg-destructive/15 hover:text-destructive" title="Delete">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              props.onDelete();
+            }}
+            className="rounded p-1 text-muted-foreground/60 hover:bg-destructive/15 hover:text-destructive"
+            title="Delete"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -339,7 +452,7 @@ function CodeBlockRow(props: RowProps) {
             <Info className="h-3 w-3" /> Advanced — edited as raw shell.
           </div>
           <textarea
-            value={block.dirty || block.created ? block.text ?? "" : block.raw.join("\n")}
+            value={block.dirty || block.created ? (block.text ?? "") : block.raw.join("\n")}
             onChange={(e) => onUpdate({ text: e.target.value })}
             spellCheck={false}
             rows={Math.min(20, Math.max(2, lineCount))}

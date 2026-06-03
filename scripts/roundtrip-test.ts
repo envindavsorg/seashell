@@ -1,12 +1,12 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
+  deleteBlock,
   parse,
   serialize,
   toggleBlock,
   updateBlock,
-  deleteBlock,
   type ZshrcDoc,
 } from "../src/lib/zshrc/parser.ts";
 
@@ -23,11 +23,17 @@ function diffFirst(a: string, b: string): string {
 
 let failures = 0;
 function check(name: string, cond: boolean, detail = "") {
-  console.log(`${cond ? "✓" : "✗"} ${name}${cond ? "" : "  " + detail}`);
+  console.log(`${cond ? "✓" : "✗"} ${name}${cond ? "" : `  ${detail}`}`);
   if (!cond) failures++;
 }
 
-const content = readFileSync(join(homedir(), ".zshrc"), "utf8");
+// Source resolution: $ZSHRC_FIXTURE, then a CLI arg, then the real ~/.zshrc, else the
+// checked-in fixture — so the guardrail runs in CI and on fresh clones without a ~/.zshrc.
+const fallback = join(import.meta.dirname, "fixtures", "sample.zshrc");
+const home = join(homedir(), ".zshrc");
+const src = process.env.ZSHRC_FIXTURE ?? process.argv[2] ?? (existsSync(home) ? home : fallback);
+console.log(`source: ${src.replace(homedir(), "~")}`);
+const content = readFileSync(src, "utf8");
 const doc = parse(content);
 
 console.log(`\nParsed ${doc.blocks.length} blocks · fellBack=${doc.fellBack}\n`);
@@ -77,11 +83,16 @@ for (const kind of ["function", "path-array"] as const) {
   const s1 = serialize(disabled); // what gets written when you disable + save
   const reparsed = parse(s1); // simulate reload
   const found = reparsed.blocks.find((x) => x.kind === kind && !x.enabled);
-  const oneBlock = !!found && reparsed.blocks.filter((x) => x.kind === kind && !x.enabled).length === 1;
+  const oneBlock =
+    !!found && reparsed.blocks.filter((x) => x.kind === kind && !x.enabled).length === 1;
   check(`disable+reload keeps ${kind} as ONE disabled block (no fragmentation)`, oneBlock);
   if (found) {
     const reEnabled = serialize(toggleBlock(reparsed, found.id));
-    check(`disable→reload→enable restores original ${kind} bytes`, reEnabled === content, diffFirst(content, reEnabled));
+    check(
+      `disable→reload→enable restores original ${kind} bytes`,
+      reEnabled === content,
+      diffFirst(content, reEnabled),
+    );
   }
 }
 
@@ -91,8 +102,15 @@ for (const kind of ["function", "path-array"] as const) {
   const sd = parse(synthetic);
   check("serialize(parse(brace-in-string)) round-trips", serialize(sd) === synthetic);
   const fn = sd.blocks.find((x) => x.kind === "function");
-  check("function with braces in strings spans exactly 4 lines", !!fn && fn.raw.length === 4, fn ? `got ${fn.raw.length}` : "no fn");
-  check("statement after the function is NOT swallowed", sd.blocks.some((x) => x.kind === "alias" && x.name === "after"));
+  check(
+    "function with braces in strings spans exactly 4 lines",
+    !!fn && fn.raw.length === 4,
+    fn ? `got ${fn.raw.length}` : "no fn",
+  );
+  check(
+    "statement after the function is NOT swallowed",
+    sd.blocks.some((x) => x.kind === "alias" && x.name === "after"),
+  );
 }
 
 // 7. non-canonical caption bytes are preserved when an edited block is re-serialized
@@ -102,7 +120,11 @@ for (const kind of ["function", "path-array"] as const) {
   const ax = sd.blocks.find((x) => x.kind === "alias");
   if (ax) {
     const out = serialize(updateBlock(sd, ax.id, { value: '"z"' }));
-    check("editing a block preserves its non-canonical caption bytes", out === `##  Loud Header\nalias x="z"\n`, diffFirst(`##  Loud Header\nalias x="z"\n`, out));
+    check(
+      "editing a block preserves its non-canonical caption bytes",
+      out === `##  Loud Header\nalias x="z"\n`,
+      diffFirst(`##  Loud Header\nalias x="z"\n`, out),
+    );
   }
 }
 

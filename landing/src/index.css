@@ -106,7 +106,9 @@
   .reveal {
     opacity: 0;
     transform: translateY(14px);
-    transition: opacity 0.55s ease, transform 0.55s ease;
+    transition:
+      opacity 0.55s ease,
+      transform 0.55s ease;
   }
   .reveal.in {
     opacity: 1;

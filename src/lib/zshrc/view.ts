@@ -1,4 +1,4 @@
-import { regenerate, type Block, type Category, type ZshrcDoc } from "./parser";
+import { type Block, type Category, regenerate, type ZshrcDoc } from "./parser";
 
 export interface CategoryMeta {
   key: Category;
@@ -9,13 +9,33 @@ export interface CategoryMeta {
 }
 
 export const CATEGORY_ORDER: CategoryMeta[] = [
-  { key: "aliases", label: "Aliases", addable: true, blurb: "Shortcuts — name = command. Values kept literal." },
-  { key: "environment", label: "Environment", addable: true, blurb: "Exports and shell variables." },
+  {
+    key: "aliases",
+    label: "Aliases",
+    addable: true,
+    blurb: "Shortcuts — name = command. Values kept literal.",
+  },
+  {
+    key: "environment",
+    label: "Environment",
+    addable: true,
+    blurb: "Exports and shell variables.",
+  },
   { key: "path", label: "PATH", addable: false, blurb: "Search path entries. $path[@] is locked." },
   { key: "options", label: "Options", addable: true, blurb: "setopt flags." },
   { key: "keybindings", label: "Keybindings", addable: true, blurb: "bindkey chords." },
-  { key: "plugins", label: "Plugins & Tools", addable: false, blurb: "source includes and eval inits." },
-  { key: "functions", label: "Functions", addable: false, blurb: "Shell functions — edited as raw code." },
+  {
+    key: "plugins",
+    label: "Plugins & Tools",
+    addable: false,
+    blurb: "source includes and eval inits.",
+  },
+  {
+    key: "functions",
+    label: "Functions",
+    addable: false,
+    blurb: "Shell functions — edited as raw code.",
+  },
   { key: "other", label: "Other", addable: false, blurb: "Everything else, preserved verbatim." },
 ];
 

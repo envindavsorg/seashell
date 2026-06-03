@@ -1,30 +1,30 @@
-import { useState, type RefObject } from "react";
 import {
-  MagnifyingGlass as Search,
-  Plus,
-  CaretDown as ChevronDown,
-  Terminal,
-  CurrencyDollar as Variable,
-  TreeStructure as FolderTree,
-  ToggleRight,
-  Keyboard,
-  PuzzlePiece as Puzzle,
-  Function as SquareFunction,
   BracketsCurly as Braces,
+  CaretDown as ChevronDown,
+  TreeStructure as FolderTree,
+  Keyboard,
+  Plus,
+  PuzzlePiece as Puzzle,
+  MagnifyingGlass as Search,
   ShieldWarning as ShieldAlert,
+  Function as SquareFunction,
+  Terminal,
+  ToggleRight,
+  CurrencyDollar as Variable,
 } from "@phosphor-icons/react";
+import { type RefObject, useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { BlockRow } from "./rows";
-import { PathArrayCard } from "./PathArrayCard";
+import { cn } from "@/lib/utils";
 import {
-  visibleBlocks,
-  categoryCounts,
   type Block,
   type Category,
+  categoryCounts,
+  visibleBlocks,
   type ZshrcDoc,
 } from "@/lib/zshrc/parser";
 import { CATEGORY_ORDER, type LineRanges } from "@/lib/zshrc/view";
-import { cn } from "@/lib/utils";
+import { PathArrayCard } from "./PathArrayCard";
+import { BlockRow } from "./rows";
 
 const CATEGORY_ICON: Record<Category, typeof Terminal> = {
   aliases: Terminal,
@@ -95,18 +95,22 @@ export function StructuredPane(props: StructuredPaneProps) {
         </div>
         <div className="scroll-thin mt-2 flex gap-1 overflow-x-auto pb-0.5">
           {scopes.map((s) => {
-            const meta = s === "all" ? null : CATEGORY_ORDER.find((c) => c.key === s)!;
-            const count = s === "all" ? Object.values(counts).reduce((a, b) => a + b, 0) : counts[s as Category];
+            const meta = s === "all" ? null : (CATEGORY_ORDER.find((c) => c.key === s) ?? null);
+            const count =
+              s === "all"
+                ? Object.values(counts).reduce((a, b) => a + b, 0)
+                : counts[s as Category];
             const active = scope === s;
             return (
               <button
+                type="button"
                 key={s}
                 onClick={() => props.onScopeChange(s)}
                 className={cn(
                   "flex shrink-0 items-center gap-1.5 rounded-[6px] border px-2 py-1 text-[11.5px] transition-colors",
                   active
                     ? "border-[var(--brand)]/40 bg-[var(--brand)]/12 text-[var(--brand)]"
-                    : "border-transparent text-muted-foreground hover:bg-accent/60"
+                    : "border-transparent text-muted-foreground hover:bg-accent/60",
                 )}
               >
                 {meta ? meta.label : "All"}
@@ -122,7 +126,8 @@ export function StructuredPane(props: StructuredPaneProps) {
         <div className="flex items-start gap-2 border-b border-amber-400/30 bg-amber-400/10 px-3 py-2 text-[11.5px] text-amber-600 dark:text-amber-300">
           <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            This file uses constructs we parse conservatively. It's preserved exactly — edit it in the source pane or as raw below.
+            This file uses constructs we parse conservatively. It's preserved exactly — edit it in
+            the source pane or as raw below.
           </span>
         </div>
       )}
@@ -147,15 +152,23 @@ export function StructuredPane(props: StructuredPaneProps) {
             >
               <div className="flex items-center gap-1.5 px-1 py-1">
                 <CollapsibleTrigger className="flex flex-1 items-center gap-1.5 text-left">
-                  <ChevronDown className={cn("h-3 w-3 text-muted-foreground/50 transition-transform", !open && "-rotate-90")} />
+                  <ChevronDown
+                    className={cn(
+                      "h-3 w-3 text-muted-foreground/50 transition-transform",
+                      !open && "-rotate-90",
+                    )}
+                  />
                   <Icon weight="duotone" className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     {cat.label}
                   </span>
-                  <span className="font-mono text-[10px] text-muted-foreground/40 tnum">{blocks.length}</span>
+                  <span className="font-mono text-[10px] text-muted-foreground/40 tnum">
+                    {blocks.length}
+                  </span>
                 </CollapsibleTrigger>
                 {cat.addable && (
                   <button
+                    type="button"
                     onClick={() => props.onAdd(cat.key)}
                     className="rounded-[5px] p-1 text-muted-foreground/60 transition-colors hover:bg-[var(--brand)]/15 hover:text-[var(--brand)]"
                     title={`Add ${cat.label.toLowerCase()}`}
@@ -167,10 +180,13 @@ export function StructuredPane(props: StructuredPaneProps) {
               <CollapsibleContent className="flex flex-col gap-0.5 pl-1">
                 {blocks.length === 0 ? (
                   <button
+                    type="button"
                     onClick={() => cat.addable && props.onAdd(cat.key)}
                     className="rounded-[6px] border border-dashed border-border px-2.5 py-2 text-left text-[12px] text-muted-foreground/70 hover:border-[var(--brand)]/40 hover:text-[var(--brand)]"
                   >
-                    {cat.addable ? `No ${cat.label.toLowerCase()} yet — add one.` : `No ${cat.label.toLowerCase()}.`}
+                    {cat.addable
+                      ? `No ${cat.label.toLowerCase()} yet — add one.`
+                      : `No ${cat.label.toLowerCase()}.`}
                   </button>
                 ) : (
                   blocks.map((b) =>
@@ -195,7 +211,7 @@ export function StructuredPane(props: StructuredPaneProps) {
                         onDelete={() => props.onDelete(b.id)}
                         onMove={(dir) => props.onMove(b.id, dir)}
                       />
-                    )
+                    ),
                   )
                 )}
               </CollapsibleContent>

@@ -1,11 +1,11 @@
-import { useTheme } from "./hooks/useTheme";
-import { Nav } from "./components/Nav";
-import { Hero } from "./components/Hero";
+import { Download } from "./components/Download";
 import { Features } from "./components/Features";
+import { Footer } from "./components/Footer";
+import { Hero } from "./components/Hero";
+import { Nav } from "./components/Nav";
 import { Safety } from "./components/Safety";
 import { Shortcuts } from "./components/Shortcuts";
-import { Download } from "./components/Download";
-import { Footer } from "./components/Footer";
+import { useTheme } from "./hooks/useTheme";
 
 export default function App() {
   const { theme, toggle } = useTheme();

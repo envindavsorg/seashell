@@ -14,7 +14,9 @@ export function Shortcuts() {
     <section className="mx-auto w-full max-w-[940px] px-6 py-24">
       <Reveal>
         <p className="mono text-[11px] tracking-[0.12em] text-brand">keyboard-first</p>
-        <h2 className="mt-3 text-[clamp(26px,4vw,42px)] leading-[1] tracking-tight">built for your fingers</h2>
+        <h2 className="mt-3 text-[clamp(26px,4vw,42px)] leading-[1] tracking-tight">
+          built for your fingers
+        </h2>
       </Reveal>
       <div className="mt-10 grid grid-cols-1 gap-x-12 sm:grid-cols-2">
         {KEYS.map((k) => (

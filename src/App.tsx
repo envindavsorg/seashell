@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { listen } from "@tauri-apps/api/event";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { useTheme } from "next-themes";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,40 +16,37 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Skeleton } from "@/components/ui/skeleton";
-
-import { Titlebar } from "@/components/zshrc/Titlebar";
-import { StatusBar } from "@/components/zshrc/StatusBar";
-import { StructuredPane } from "@/components/zshrc/StructuredPane";
-import { SourcePane } from "@/components/zshrc/SourcePane";
-import { ReviewSaveDialog } from "@/components/zshrc/ReviewSaveDialog";
 import { BackupsSheet } from "@/components/zshrc/BackupsSheet";
 import { CommandPalette } from "@/components/zshrc/CommandPalette";
 import { DiffView } from "@/components/zshrc/DiffView";
 import { Kbd } from "@/components/zshrc/Kbd";
-
+import { ReviewSaveDialog } from "@/components/zshrc/ReviewSaveDialog";
+import { SourcePane } from "@/components/zshrc/SourcePane";
+import { StatusBar } from "@/components/zshrc/StatusBar";
+import { StructuredPane } from "@/components/zshrc/StructuredPane";
+import { Titlebar } from "@/components/zshrc/Titlebar";
+import { relativeTime } from "@/lib/format";
+import { api, type BackupInfo, type ZshValidation } from "@/lib/tauri";
+import { diffLines } from "@/lib/zshrc/diff";
 import {
-  parse,
-  serialize,
-  updateBlock,
-  toggleBlock,
-  deleteBlock,
-  moveBlock,
   addBlock,
   type Block,
   type Category,
+  deleteBlock,
+  moveBlock,
+  parse,
+  serialize,
+  toggleBlock,
+  updateBlock,
   type ZshrcDoc,
 } from "@/lib/zshrc/parser";
-import { lineRanges, blockAtLine } from "@/lib/zshrc/view";
-import { diffLines } from "@/lib/zshrc/diff";
-import { api, type BackupInfo, type ZshValidation } from "@/lib/tauri";
-import { relativeTime } from "@/lib/format";
-import { listen } from "@tauri-apps/api/event";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { blockAtLine, lineRanges } from "@/lib/zshrc/view";
 
 type AddCategory = "aliases" | "environment" | "options" | "keybindings";
 
@@ -128,8 +122,11 @@ export default function App() {
   const serialized = useMemo(() => (doc ? serialize(doc) : ""), [doc]);
   const dirty = doc ? serialized !== doc.original : false;
   const ranges = useMemo(() => (doc ? lineRanges(doc) : {}), [doc]);
-  const selectedRange = selectedId ? ranges[selectedId] ?? null : null;
-  const lineCount = useMemo(() => serialized.split("\n").length - (serialized.endsWith("\n") ? 1 : 0), [serialized]);
+  const selectedRange = selectedId ? (ranges[selectedId] ?? null) : null;
+  const lineCount = useMemo(
+    () => serialized.split("\n").length - (serialized.endsWith("\n") ? 1 : 0),
+    [serialized],
+  );
   const editedCount = doc ? doc.blocks.filter((b) => b.dirty || b.created).length : 0;
   const dirtyCount = editedCount || (dirty ? 1 : 0);
 
@@ -159,7 +156,7 @@ export default function App() {
       setSelectedId(id);
       flashBlock(next, id);
     },
-    [doc, apply, flashBlock]
+    [doc, apply, flashBlock],
   );
 
   const onToggle = useCallback(
@@ -170,9 +167,10 @@ export default function App() {
       setSelectedId(id);
       flashBlock(next, id);
     },
-    [doc, apply, flashBlock]
+    [doc, apply, flashBlock],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: undo() is stable (refs only) and declared below
   const onDelete = useCallback(
     (id: string) => {
       if (!doc) return;
@@ -182,8 +180,7 @@ export default function App() {
         action: { label: "Undo", onClick: () => undo() },
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [doc, apply, selectedId]
+    [doc, apply, selectedId],
   );
 
   const onMove = useCallback(
@@ -191,7 +188,7 @@ export default function App() {
       if (!doc) return;
       apply(moveBlock(doc, id, dir));
     },
-    [doc, apply]
+    [doc, apply],
   );
 
   const onAdd = useCallback(
@@ -220,7 +217,7 @@ export default function App() {
       setQuery(""); // clear any active filter so the new (empty) row isn't filtered out
       if (scope !== "all" && scope !== category) setScope(category);
     },
-    [doc, apply, scope]
+    [doc, apply, scope],
   );
 
   const select = useCallback(
@@ -229,7 +226,7 @@ export default function App() {
       const b = doc?.blocks.find((x) => x.id === id);
       if (b && scope !== "all" && b.category !== scope) setScope("all");
     },
-    [doc, scope]
+    [doc, scope],
   );
 
   const onSelectLine = useCallback(
@@ -241,7 +238,7 @@ export default function App() {
       const b = blockAtLine(doc, ranges, n);
       if (b && b.kind !== "blank") select(b.id);
     },
-    [doc, ranges, select]
+    [doc, ranges, select],
   );
 
   const undo = useCallback(() => {
@@ -292,9 +289,7 @@ export default function App() {
       const backup = outcome.backup;
       toast.success("Saved · backup created", {
         description: backup ? backup.name : undefined,
-        action: backup
-          ? { label: "Undo", onClick: () => setRestoreTarget(backup) }
-          : undefined,
+        action: backup ? { label: "Undo", onClick: () => setRestoreTarget(backup) } : undefined,
       });
     } catch (e) {
       toast.error("Save failed", { description: String(e) });
@@ -318,7 +313,7 @@ export default function App() {
         toast.error("Restore failed", { description: String(e) });
       }
     },
-    [loadFresh, refreshBackups]
+    [loadFresh, refreshBackups],
   );
 
   const doDelete = useCallback(
@@ -331,7 +326,7 @@ export default function App() {
         toast.error("Delete failed", { description: String(e) });
       }
     },
-    [refreshBackups]
+    [refreshBackups],
   );
 
   const viewBackupDiff = useCallback(async (b: BackupInfo) => {
@@ -404,7 +399,7 @@ export default function App() {
       .map((h) =>
         h.rows
           .map((row) => (row.kind === "add" ? "+" : row.kind === "del" ? "-" : " ") + row.text)
-          .join("\n")
+          .join("\n"),
       )
       .join("\n\n");
     writeText(text)
@@ -481,11 +476,21 @@ export default function App() {
 
   const hint = (
     <div className="flex items-center gap-3">
-      <span className="flex items-center gap-1"><Kbd>⏎</Kbd> edit</span>
-      <span className="flex items-center gap-1"><Kbd>⌘K</Kbd> palette</span>
-      <span className="flex items-center gap-1"><Kbd>⌘D</Kbd> live / on-disk</span>
-      <span className="flex items-center gap-1"><Kbd>⌘Z</Kbd> undo</span>
-      <span className="flex items-center gap-1"><Kbd>⌘S</Kbd> review &amp; save</span>
+      <span className="flex items-center gap-1">
+        <Kbd>⏎</Kbd> edit
+      </span>
+      <span className="flex items-center gap-1">
+        <Kbd>⌘K</Kbd> palette
+      </span>
+      <span className="flex items-center gap-1">
+        <Kbd>⌘D</Kbd> live / on-disk
+      </span>
+      <span className="flex items-center gap-1">
+        <Kbd>⌘Z</Kbd> undo
+      </span>
+      <span className="flex items-center gap-1">
+        <Kbd>⌘S</Kbd> review &amp; save
+      </span>
     </div>
   );
 

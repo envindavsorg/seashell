@@ -1,14 +1,7 @@
 // Lightweight zsh highlighter for the live source pane and scoped code editing.
 // Deliberately restrained (5 hues) so disabled/commented blocks visibly recede.
 
-export type TokenType =
-  | "comment"
-  | "string"
-  | "var"
-  | "number"
-  | "keyword"
-  | "builtin"
-  | "plain";
+export type TokenType = "comment" | "string" | "var" | "number" | "keyword" | "builtin" | "plain";
 
 export interface Token {
   text: string;
@@ -16,15 +9,41 @@ export interface Token {
 }
 
 const KEYWORDS = new Set([
-  "if", "then", "elif", "else", "fi",
-  "for", "while", "until", "do", "done",
-  "case", "esac", "in", "function", "select", "return",
+  "if",
+  "then",
+  "elif",
+  "else",
+  "fi",
+  "for",
+  "while",
+  "until",
+  "do",
+  "done",
+  "case",
+  "esac",
+  "in",
+  "function",
+  "select",
+  "return",
 ]);
 
 const BUILTINS = new Set([
-  "export", "alias", "setopt", "unsetopt", "bindkey", "source", "eval",
-  "typeset", "unset", "local", "readonly", "autoload", "command", "zstyle",
-  "fpath", "path",
+  "export",
+  "alias",
+  "setopt",
+  "unsetopt",
+  "bindkey",
+  "source",
+  "eval",
+  "typeset",
+  "unset",
+  "local",
+  "readonly",
+  "autoload",
+  "command",
+  "zstyle",
+  "fpath",
+  "path",
 ]);
 
 const TOKEN_RE =
@@ -34,8 +53,8 @@ export function tokenizeLine(line: string): Token[] {
   const tokens: Token[] = [];
   let last = 0;
   TOKEN_RE.lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while ((m = TOKEN_RE.exec(line)) !== null) {
+  let m: RegExpExecArray | null = TOKEN_RE.exec(line);
+  while (m !== null) {
     if (m.index > last) tokens.push({ text: line.slice(last, m.index), type: "plain" });
     if (m[1] !== undefined) tokens.push({ text: m[1], type: "comment" });
     else if (m[2] !== undefined) tokens.push({ text: m[2], type: "string" });
@@ -48,6 +67,7 @@ export function tokenizeLine(line: string): Token[] {
       tokens.push({ text: w, type });
     }
     last = TOKEN_RE.lastIndex;
+    m = TOKEN_RE.exec(line);
   }
   if (last < line.length) tokens.push({ text: line.slice(last), type: "plain" });
   if (tokens.length === 0) tokens.push({ text: line, type: "plain" });

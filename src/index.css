@@ -7,10 +7,12 @@
   --radius: 0.625rem;
 
   /* fonts — the trust contract: Geist Sans for chrome, Geist Mono for bytes */
-  --font-ui: "Geist Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Inter", system-ui, "Segoe UI", sans-serif;
-  --font-code: "Geist Mono Variable", "SF Mono", "JetBrains Mono", ui-monospace,
-    Menlo, Monaco, "Cascadia Code", monospace;
+  --font-ui:
+    "Geist Variable", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui,
+    "Segoe UI", sans-serif;
+  --font-code:
+    "Geist Mono Variable", "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Monaco,
+    "Cascadia Code", monospace;
 
   /* brand accent — calm terminal green (light: darkened for AA) */
   --brand: #2c7a5f;

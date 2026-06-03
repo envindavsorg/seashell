@@ -9,12 +9,19 @@ export function Nav({ theme, onToggle }: { theme: "dark" | "light"; onToggle: ()
           seashell
         </a>
         <div className="ml-2 hidden gap-5 font-mono text-[12px] text-muted sm:flex">
-          <a href="#features" className="hover:text-fg">features</a>
-          <a href="#safety" className="hover:text-fg">safety</a>
-          <a href="#download" className="hover:text-fg">download</a>
+          <a href="#features" className="hover:text-fg">
+            features
+          </a>
+          <a href="#safety" className="hover:text-fg">
+            safety
+          </a>
+          <a href="#download" className="hover:text-fg">
+            download
+          </a>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <button
+            type="button"
             onClick={onToggle}
             aria-label="toggle theme"
             className="grid h-8 w-8 place-items-center border border-border text-muted hover:text-fg"

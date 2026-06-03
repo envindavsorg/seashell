@@ -80,7 +80,7 @@ Grab the latest `.dmg` from the [**Releases**](https://github.com/envindavsorg/s
 
 ### Build from source
 
-**Prerequisites:** [Rust](https://rustup.rs) (stable), [Node](https://nodejs.org) ≥ 20, and [pnpm](https://pnpm.io) ≥ 9.
+**Prerequisites:** [Rust](https://rustup.rs) (stable), [Node](https://nodejs.org) ≥ 22.13, and [pnpm](https://pnpm.io) ≥ 11.
 
 ```bash
 git clone https://github.com/envindavsorg/seashell.git
@@ -121,19 +121,23 @@ seashell is a [Tauri 2](https://tauri.app) app — a Rust core and a React webvi
 ## Development
 
 ```bash
-pnpm tauri dev                 # the real desktop app (Rust + webview)
-pnpm dev                       # frontend only, in a browser at :1420 (invoke() will fail)
-pnpm build                     # typecheck + bundle the frontend
-node scripts/roundtrip-test.ts # parser safety suite against your real ~/.zshrc
+pnpm tauri dev   # the real desktop app (Rust + webview)
+pnpm dev         # frontend only, in a browser at :1420 (invoke() will fail)
+pnpm build       # typecheck + bundle the frontend
+pnpm check       # Biome: lint + format (writes fixes)
+pnpm test        # parser round-trip suite (uses ~/.zshrc, else a checked-in fixture)
 
 # from src-tauri/
-cargo clippy                   # lint the Rust backend
-cargo fmt                      # format
+cargo clippy     # lint the Rust backend
+cargo fmt        # format
 ```
 
-If you touch `src/lib/zshrc/parser.ts`, **always** re‑run `node scripts/roundtrip-test.ts` —
-it's the guardrail for the cardinal rule (byte‑exact round‑trip, reversible toggles,
-isolated edits).
+`pnpm test` reads your real `~/.zshrc` when present, otherwise `scripts/fixtures/sample.zshrc`
+(override with `ZSHRC_FIXTURE=path` or a CLI arg). Lint, typecheck, the test, clippy and fmt
+all run in CI (`.github/workflows/ci.yml`).
+
+If you touch `src/lib/zshrc/parser.ts`, **always** re‑run `pnpm test` — it's the guardrail for
+the cardinal rule (byte‑exact round‑trip, reversible toggles, isolated edits).
 
 ## License
 

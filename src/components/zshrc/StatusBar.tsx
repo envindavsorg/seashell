@@ -25,7 +25,9 @@ export function StatusBar({
     <footer className="shrink-0 select-none border-t border-border bg-card/60 backdrop-blur-xl">
       <div className="flex h-6 items-center gap-3 px-3 text-[11.5px]">
         <span className="flex items-center gap-1.5">
-          <span className={cn("h-1.5 w-1.5 rounded-full", dirty ? "bg-amber-400" : "bg-[var(--brand)]")} />
+          <span
+            className={cn("h-1.5 w-1.5 rounded-full", dirty ? "bg-amber-400" : "bg-[var(--brand)]")}
+          />
           <span className={dirty ? "text-foreground" : "text-muted-foreground"}>
             {dirty ? `${dirtyCount} unsaved ${dirtyCount === 1 ? "change" : "changes"}` : "Saved"}
           </span>
@@ -42,6 +44,7 @@ export function StatusBar({
         )}
         <div className="flex-1" />
         <button
+          type="button"
           onClick={onDiscard}
           disabled={!dirty}
           className="text-muted-foreground transition-colors hover:text-destructive disabled:pointer-events-none disabled:opacity-40"

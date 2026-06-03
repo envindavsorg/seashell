@@ -100,9 +100,10 @@ export function diffLines(oldText: string, newText: string, context = 3): DiffRe
 function finalizeHunk(rows: DiffRow[]): DiffHunk {
   // Label the hunk with the nearest comment line in its context, else a line range.
   const comment = rows.find((r) => r.kind === "eq" && /^\s*#\s*\S/.test(r.text));
-  const firstNo = rows.find((r) => r.oldNo != null)?.oldNo ?? rows.find((r) => r.newNo != null)?.newNo ?? 0;
+  const firstNo =
+    rows.find((r) => r.oldNo != null)?.oldNo ?? rows.find((r) => r.newNo != null)?.newNo ?? 0;
   const lastRow = [...rows].reverse().find((r) => r.newNo != null || r.oldNo != null);
-  const lastNo = lastRow ? lastRow.newNo ?? lastRow.oldNo ?? firstNo : firstNo;
+  const lastNo = lastRow ? (lastRow.newNo ?? lastRow.oldNo ?? firstNo) : firstNo;
   const label = comment
     ? comment.text.replace(/^\s*#\s?/, "").trim()
     : `lines ${firstNo}–${lastNo}`;

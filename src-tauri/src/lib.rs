@@ -16,6 +16,8 @@ use tauri::{Emitter, Manager};
 const BACKUP_DIR_NAME: &str = ".zshrc.backups";
 const BACKUP_PREFIX: &str = "zshrc.";
 const BACKUP_SUFFIX: &str = ".bak";
+/// Keep at most this many backups; older ones are pruned on each new backup.
+const MAX_BACKUPS: usize = 50;
 
 /// Monotonic per-process counter so concurrent writes never share a temp path.
 static TMP_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -86,6 +88,42 @@ fn validate_backup_name(name: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Extract the epoch-seconds prefix from a backup filename: zshrc.<secs>[-n].bak.
+fn parse_backup_epoch(name: &str) -> u64 {
+    name.trim_start_matches(BACKUP_PREFIX)
+        .trim_end_matches(BACKUP_SUFFIX)
+        .split('-')
+        .next()
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(0)
+}
+
+/// Keep only the newest MAX_BACKUPS backups. Best-effort: never fails a save/restore.
+fn prune_backups(dir: &Path) {
+    let Ok(rd) = fs::read_dir(dir) else {
+        return;
+    };
+    let mut backups: Vec<(u64, String, PathBuf)> = rd
+        .filter_map(|e| e.ok())
+        .filter_map(|e| {
+            let name = e.file_name().to_string_lossy().into_owned();
+            if name.starts_with(BACKUP_PREFIX) && name.ends_with(BACKUP_SUFFIX) {
+                Some((parse_backup_epoch(&name), name, e.path()))
+            } else {
+                None
+            }
+        })
+        .collect();
+    if backups.len() <= MAX_BACKUPS {
+        return;
+    }
+    // newest first (epoch desc, then name desc) — same ordering as list_backups
+    backups.sort_by(|a, b| b.0.cmp(&a.0).then(b.1.cmp(&a.1)));
+    for (_, _, path) in backups.into_iter().skip(MAX_BACKUPS) {
+        let _ = fs::remove_file(path);
+    }
+}
+
 /// Copy the current .zshrc into the backups dir. Returns None if there's nothing
 /// to back up (file doesn't exist yet).
 fn make_backup(app: &tauri::AppHandle) -> Result<Option<BackupInfo>, String> {
@@ -107,6 +145,7 @@ fn make_backup(app: &tauri::AppHandle) -> Result<Option<BackupInfo>, String> {
     }
     fs::copy(&src, &dest).map_err(|e| format!("backup copy failed: {e}"))?;
     let size = fs::metadata(&dest).map(|m| m.len()).unwrap_or(0);
+    prune_backups(&dir);
     Ok(Some(BackupInfo {
         name,
         path: dest.to_string_lossy().into_owned(),
@@ -215,13 +254,7 @@ fn list_backups(app: tauri::AppHandle) -> Result<Vec<BackupInfo>, String> {
         let name = entry.file_name().to_string_lossy().into_owned();
         if name.starts_with(BACKUP_PREFIX) && name.ends_with(BACKUP_SUFFIX) {
             let meta = entry.metadata().map_err(|e| e.to_string())?;
-            let epoch_secs = name
-                .trim_start_matches(BACKUP_PREFIX)
-                .trim_end_matches(BACKUP_SUFFIX)
-                .split('-')
-                .next()
-                .and_then(|s| s.parse::<u64>().ok())
-                .unwrap_or(0);
+            let epoch_secs = parse_backup_epoch(&name);
             out.push(BackupInfo {
                 name,
                 path: entry.path().to_string_lossy().into_owned(),
@@ -295,6 +328,15 @@ fn validate_zsh(content: String) -> Result<ZshValidation, String> {
         TMP_COUNTER.fetch_add(1, Ordering::Relaxed)
     ));
     fs::write(&tmp, content.as_bytes()).map_err(|e| format!("temp write failed: {e}"))?;
+    // The content can contain secrets (export TOKEN=...); keep the temp file owner-only.
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if let Err(e) = fs::set_permissions(&tmp, fs::Permissions::from_mode(0o600)) {
+            let _ = fs::remove_file(&tmp);
+            return Err(format!("set permissions failed: {e}"));
+        }
+    }
     let output = std::process::Command::new("zsh")
         .arg("-n")
         .arg(&tmp)

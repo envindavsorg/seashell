@@ -8,6 +8,11 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# Cancel an in-progress build when a newer one starts for the same ref (saves macOS runner minutes).
+concurrency:
+  group: build-macos-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write # required for tauri-action to create the release
 

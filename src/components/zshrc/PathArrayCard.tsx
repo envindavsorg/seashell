@@ -1,8 +1,14 @@
+import {
+  CaretDown as ChevronDown,
+  CaretUp as ChevronUp,
+  Lock,
+  Plus,
+  Trash as Trash2,
+} from "@phosphor-icons/react";
 import { useState } from "react";
-import { CaretUp as ChevronUp, CaretDown as ChevronDown, Trash as Trash2, Plus, Lock } from "@phosphor-icons/react";
 import { Switch } from "@/components/ui/switch";
-import type { Block } from "@/lib/zshrc/parser";
 import { cn } from "@/lib/utils";
+import type { Block } from "@/lib/zshrc/parser";
 
 interface PathArrayCardProps {
   block: Block;
@@ -15,7 +21,13 @@ interface PathArrayCardProps {
 // matches $path, $path[@], ${path}, ${path[@]}, and the quoted forms — but not $PATH
 const SENTINEL_RE = /^"?\$\{?path(\[@\])?\}?"?$/;
 
-export function PathArrayCard({ block, selected, onSelect, onUpdate, onToggle }: PathArrayCardProps) {
+export function PathArrayCard({
+  block,
+  selected,
+  onSelect,
+  onUpdate,
+  onToggle,
+}: PathArrayCardProps) {
   const entries = block.entries ?? [];
   const sentinelIdx = entries.findIndex((e) => SENTINEL_RE.test(e.trim()));
   const editableEnd = sentinelIdx === -1 ? entries.length : sentinelIdx;
@@ -44,11 +56,15 @@ export function PathArrayCard({ block, selected, onSelect, onUpdate, onToggle }:
   return (
     <div
       onClick={onSelect}
-      style={{ boxShadow: selected ? "inset 2px 0 0 0 var(--brand)" : "inset 2px 0 0 0 color-mix(in srgb, var(--chart-3) 35%, transparent)" }}
+      style={{
+        boxShadow: selected
+          ? "inset 2px 0 0 0 var(--brand)"
+          : "inset 2px 0 0 0 color-mix(in srgb, var(--chart-3) 35%, transparent)",
+      }}
       className={cn(
         "rounded-[8px] border transition-colors",
         selected ? "border-border bg-accent/60" : "border-border/60 hover:bg-accent/30",
-        !block.enabled && "opacity-55"
+        !block.enabled && "opacity-55",
       )}
     >
       <div className="flex items-center gap-2 border-b border-border/60 px-2.5 py-1.5">
@@ -70,15 +86,24 @@ export function PathArrayCard({ block, selected, onSelect, onUpdate, onToggle }:
           const isSentinel = i >= editableEnd;
           if (isSentinel) {
             return (
-              <div key={i} className="flex items-center gap-2 rounded-[6px] bg-secondary/40 px-2 py-1">
+              <div
+                key={i}
+                className="flex items-center gap-2 rounded-[6px] bg-secondary/40 px-2 py-1"
+              >
                 <Lock className="h-3 w-3 shrink-0 text-muted-foreground/60" />
                 <span className="flex-1 font-mono text-[12px] text-muted-foreground">{entry}</span>
-                <span className="select-none text-[10px] text-muted-foreground/50">inherited · locked</span>
+                <span className="select-none text-[10px] text-muted-foreground/50">
+                  inherited · locked
+                </span>
               </div>
             );
           }
           return (
-            <div key={i} className="group flex items-center gap-1 rounded-[6px] px-1 py-0.5 hover:bg-accent/50" onClick={(e) => e.stopPropagation()}>
+            <div
+              key={i}
+              className="group flex items-center gap-1 rounded-[6px] px-1 py-0.5 hover:bg-accent/50"
+              onClick={(e) => e.stopPropagation()}
+            >
               <input
                 value={entry}
                 onChange={(e) => updateAt(i, e.target.value)}
@@ -86,13 +111,28 @@ export function PathArrayCard({ block, selected, onSelect, onUpdate, onToggle }:
                 className="min-w-0 flex-1 rounded-[5px] border border-transparent bg-transparent px-1.5 py-0.5 font-mono text-[12px] outline-none hover:border-border/60 focus:border-[var(--brand)] focus:bg-background"
               />
               <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                <button onClick={() => move(i, -1)} className="rounded p-0.5 text-muted-foreground/60 hover:text-foreground" title="Move up">
+                <button
+                  type="button"
+                  onClick={() => move(i, -1)}
+                  className="rounded p-0.5 text-muted-foreground/60 hover:text-foreground"
+                  title="Move up"
+                >
                   <ChevronUp className="h-3.5 w-3.5" />
                 </button>
-                <button onClick={() => move(i, 1)} className="rounded p-0.5 text-muted-foreground/60 hover:text-foreground" title="Move down">
+                <button
+                  type="button"
+                  onClick={() => move(i, 1)}
+                  className="rounded p-0.5 text-muted-foreground/60 hover:text-foreground"
+                  title="Move down"
+                >
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
-                <button onClick={() => removeAt(i)} className="rounded p-0.5 text-muted-foreground/60 hover:text-destructive" title="Remove">
+                <button
+                  type="button"
+                  onClick={() => removeAt(i)}
+                  className="rounded p-0.5 text-muted-foreground/60 hover:text-destructive"
+                  title="Remove"
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -101,7 +141,12 @@ export function PathArrayCard({ block, selected, onSelect, onUpdate, onToggle }:
         })}
 
         <div className="flex items-center gap-1 px-1 pt-0.5" onClick={(e) => e.stopPropagation()}>
-          <button onClick={add} className="shrink-0 rounded p-0.5 text-muted-foreground/50 hover:text-[var(--brand)]" title="Add entry">
+          <button
+            type="button"
+            onClick={add}
+            className="shrink-0 rounded p-0.5 text-muted-foreground/50 hover:text-[var(--brand)]"
+            title="Add entry"
+          >
             <Plus className="h-3.5 w-3.5" />
           </button>
           <input

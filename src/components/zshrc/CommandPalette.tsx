@@ -1,25 +1,25 @@
 import {
-  FloppyDisk as Save,
   Clock,
+  Code,
+  Copy,
+  ArrowElbowDownLeft as CornerDownLeft,
+  FolderOpen,
+  Keyboard,
   ArrowsClockwise as RefreshCw,
-  ArrowUUpLeft as Undo2,
+  FloppyDisk as Save,
   CircleHalf as SunMoon,
   Terminal,
-  CurrencyDollar as Variable,
   ToggleRight,
-  Keyboard,
-  ArrowElbowDownLeft as CornerDownLeft,
-  Code,
-  FolderOpen,
-  Copy,
+  ArrowUUpLeft as Undo2,
+  CurrencyDollar as Variable,
 } from "@phosphor-icons/react";
 import {
   CommandDialog,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
+  CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
 import type { Block, ZshrcDoc } from "@/lib/zshrc/parser";
@@ -69,7 +69,7 @@ export function CommandPalette(props: CommandPaletteProps) {
   };
 
   const jumpable = props.doc.blocks.filter(
-    (b) => b.kind !== "blank" && b.kind !== "comment" && b.kind !== "section"
+    (b) => b.kind !== "blank" && b.kind !== "comment" && b.kind !== "section",
   );
 
   return (
@@ -82,13 +82,19 @@ export function CommandPalette(props: CommandPaletteProps) {
           <CommandItem value="add alias" onSelect={() => run(() => props.onAdd("aliases"))}>
             <Terminal className="h-4 w-4" /> Add alias
           </CommandItem>
-          <CommandItem value="add export environment variable" onSelect={() => run(() => props.onAdd("environment"))}>
+          <CommandItem
+            value="add export environment variable"
+            onSelect={() => run(() => props.onAdd("environment"))}
+          >
             <Variable className="h-4 w-4" /> Add export
           </CommandItem>
           <CommandItem value="add setopt option" onSelect={() => run(() => props.onAdd("options"))}>
             <ToggleRight className="h-4 w-4" /> Add option
           </CommandItem>
-          <CommandItem value="add keybinding bindkey" onSelect={() => run(() => props.onAdd("keybindings"))}>
+          <CommandItem
+            value="add keybinding bindkey"
+            onSelect={() => run(() => props.onAdd("keybindings"))}
+          >
             <Keyboard className="h-4 w-4" /> Add keybinding
           </CommandItem>
         </CommandGroup>
@@ -137,7 +143,9 @@ export function CommandPalette(props: CommandPaletteProps) {
             >
               <CornerDownLeft className="h-4 w-4 opacity-40" />
               <span className="truncate font-mono text-[12.5px]">{labelFor(b)}</span>
-              {!b.enabled && <span className="ml-auto text-[10px] text-muted-foreground/50">disabled</span>}
+              {!b.enabled && (
+                <span className="ml-auto text-[10px] text-muted-foreground/50">disabled</span>
+              )}
             </CommandItem>
           ))}
         </CommandGroup>

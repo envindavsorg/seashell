@@ -100,11 +100,7 @@ function hash(s: string): number {
 
 export function splitQuote(rawValue: string): { value: string; quote: Quote } {
   const t = rawValue.trim();
-  if (
-    t.length >= 2 &&
-    (t[0] === '"' || t[0] === "'") &&
-    t[t.length - 1] === t[0]
-  ) {
+  if (t.length >= 2 && (t[0] === '"' || t[0] === "'") && t[t.length - 1] === t[0]) {
     return { value: t.slice(1, -1), quote: t[0] as Quote };
   }
   return { value: t, quote: "" };
@@ -202,7 +198,11 @@ function classifyStatement(text: string): Partial<Block> & { kind: BlockKind; ca
 
   // setopt OPT...
   if (/^setopt\s+/.test(t)) {
-    const options = t.replace(/^setopt\s+/, "").trim().split(/\s+/).filter(Boolean);
+    const options = t
+      .replace(/^setopt\s+/, "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
     return { kind: "option", category: "options", options };
   }
 
@@ -217,7 +217,12 @@ function classifyStatement(text: string): Partial<Block> & { kind: BlockKind; ca
     return { kind: "source", category: "plugins", text };
 
   // PATH-related
-  if (/^typeset\b[^\n]*\bpath\b/.test(t) || /\bfpath=/.test(t) || /^path=/.test(t) || /\bPATH=/.test(t))
+  if (
+    /^typeset\b[^\n]*\bpath\b/.test(t) ||
+    /\bfpath=/.test(t) ||
+    /^path=/.test(t) ||
+    /\bPATH=/.test(t)
+  )
     return { kind: "raw", category: "path", text };
 
   // bare assignment NAME=VALUE (opaque value, kept literal)
@@ -231,7 +236,9 @@ function classifyStatement(text: string): Partial<Block> & { kind: BlockKind; ca
 }
 
 /** Try to read a disabled (commented-out) single-line statement. Returns null if it's a real comment. */
-function classifyDisabled(line: string): (Partial<Block> & { kind: BlockKind; category: Category }) | null {
+function classifyDisabled(
+  line: string,
+): (Partial<Block> & { kind: BlockKind; category: Category }) | null {
   const m = line.match(/^(\s*)#+\s?(.*)$/);
   if (!m) return null;
   const inner = m[2].trim();
@@ -291,7 +298,9 @@ function commentText(rawLine: string): string {
 // parse
 // ---------------------------------------------------------------------------
 
-function newBlock(b: Partial<Block> & { kind: BlockKind; category: Category; raw: string[] }): Block {
+function newBlock(
+  b: Partial<Block> & { kind: BlockKind; category: Category; raw: string[] },
+): Block {
   return {
     id: uid(),
     enabled: true,
@@ -340,7 +349,10 @@ export function parse(content: string): ZshrcDoc {
     }
 
     // function (brace block)
-    if (RE_FUNC.test(line) || (RE_FUNC.test(line.replace(/\{[^]*$/, "{")) && RE_FUNC_INLINE_BRACE.test(line))) {
+    if (
+      RE_FUNC.test(line) ||
+      (RE_FUNC.test(line.replace(/\{[\s\S]*$/, "{")) && RE_FUNC_INLINE_BRACE.test(line))
+    ) {
       const end = consumeBraceBlock(lines, i);
       const raw = lines.slice(i, end + 1);
       const nameMatch = line.match(/^\s*(?:function\s+)?([A-Za-z_][A-Za-z0-9_]*)/);
@@ -351,7 +363,7 @@ export function parse(content: string): ZshrcDoc {
           raw,
           text: raw.join("\n"),
           name: nameMatch ? nameMatch[1] : undefined,
-        })
+        }),
       );
       i = end + 1;
       continue;
@@ -363,7 +375,14 @@ export function parse(content: string): ZshrcDoc {
       const end = consumeKeywordBlock(lines, i);
       const raw = lines.slice(i, end + 1);
       const { kind, category } = classifyByContent(raw.join("\n"));
-      blocks.push(newBlock({ kind: kind === "source" || kind === "eval" ? kind : "raw", category, raw, text: raw.join("\n") }));
+      blocks.push(
+        newBlock({
+          kind: kind === "source" || kind === "eval" ? kind : "raw",
+          category,
+          raw,
+          text: raw.join("\n"),
+        }),
+      );
       i = end + 1;
       continue;
     }
@@ -385,7 +404,7 @@ export function parse(content: string): ZshrcDoc {
           entries,
           arrayExtra,
           text: raw.join("\n"),
-        })
+        }),
       );
       i = end + 1;
       continue;
@@ -440,15 +459,8 @@ function attachNotes(blocks: Block[]): void {
     const cur = blocks[i];
     const prev = blocks[i - 1];
     const attachable =
-      cur.kind !== "comment" &&
-      cur.kind !== "section" &&
-      cur.kind !== "blank" &&
-      cur.enabled;
-    if (
-      attachable &&
-      prev.kind === "comment" &&
-      prev.raw.length === 1
-    ) {
+      cur.kind !== "comment" && cur.kind !== "section" && cur.kind !== "blank" && cur.enabled;
+    if (attachable && prev.kind === "comment" && prev.raw.length === 1) {
       cur.note = commentText(prev.raw[0]);
       cur.noteRaw = prev.raw[0];
       cur.raw = [...prev.raw, ...cur.raw];
@@ -529,7 +541,10 @@ function disabledBodies(lines: string[], start: number): string[] {
  * it into loose comments and re-enabling would emit broken shell. Returns null if `start` is
  * not such a construct (the caller then handles it as a single comment / disabled statement).
  */
-function consumeDisabledMultiline(lines: string[], start: number): { block: Block; end: number } | null {
+function consumeDisabledMultiline(
+  lines: string[],
+  start: number,
+): { block: Block; end: number } | null {
   const body0 = uncomment(lines[start]);
   if (body0 === null) return null;
   const bodies = disabledBodies(lines, start);
@@ -537,7 +552,10 @@ function consumeDisabledMultiline(lines: string[], start: number): { block: Bloc
   let endRel = -1;
   let mode: "function" | "array" | "keyword" | null = null;
 
-  if (RE_FUNC.test(body0) || (RE_FUNC.test(body0.replace(/\{[^]*$/, "{")) && RE_FUNC_INLINE_BRACE.test(body0))) {
+  if (
+    RE_FUNC.test(body0) ||
+    (RE_FUNC.test(body0.replace(/\{[\s\S]*$/, "{")) && RE_FUNC_INLINE_BRACE.test(body0))
+  ) {
     endRel = consumeBraceBlock(bodies, 0);
     mode = "function";
   } else if (/=\(\s*$/.test(body0)) {
@@ -561,7 +579,14 @@ function consumeDisabledMultiline(lines: string[], start: number): { block: Bloc
   if (mode === "function") {
     const nameMatch = body0.match(/^\s*(?:function\s+)?([A-Za-z_][A-Za-z0-9_]*)/);
     return {
-      block: newBlock({ kind: "function", category: "functions", raw, text, name: nameMatch ? nameMatch[1] : undefined, enabled: false }),
+      block: newBlock({
+        kind: "function",
+        category: "functions",
+        raw,
+        text,
+        name: nameMatch ? nameMatch[1] : undefined,
+        enabled: false,
+      }),
       end: start + endRel,
     };
   }
@@ -571,13 +596,28 @@ function consumeDisabledMultiline(lines: string[], start: number): { block: Bloc
     const entries = inner.filter((l) => l.trim() && !RE_COMMENT.test(l)).map((l) => l.trim());
     const arrayExtra = inner.filter((l) => RE_COMMENT.test(l));
     return {
-      block: newBlock({ kind: "path-array", category: "path", raw, header: headerMatch ? body0.trim() : "path=(", entries, arrayExtra, text, enabled: false }),
+      block: newBlock({
+        kind: "path-array",
+        category: "path",
+        raw,
+        header: headerMatch ? body0.trim() : "path=(",
+        entries,
+        arrayExtra,
+        text,
+        enabled: false,
+      }),
       end: start + endRel,
     };
   }
   const { kind, category } = classifyByContent(text);
   return {
-    block: newBlock({ kind: kind === "source" || kind === "eval" ? kind : "raw", category, raw, text, enabled: false }),
+    block: newBlock({
+      kind: kind === "source" || kind === "eval" ? kind : "raw",
+      category,
+      raw,
+      text,
+      enabled: false,
+    }),
     end: start + endRel,
   };
 }
@@ -661,20 +701,23 @@ export function updateBlock(doc: ZshrcDoc, id: string, patch: Partial<Block>): Z
             ...(patch.note !== undefined ? { noteRaw: undefined } : {}),
             dirty: true,
           }
-        : b
-    )
+        : b,
+    ),
   );
 }
 
 export function toggleBlock(doc: ZshrcDoc, id: string): ZshrcDoc {
   return clone(
     doc,
-    doc.blocks.map((b) => (b.id === id ? { ...b, enabled: !b.enabled, dirty: true } : b))
+    doc.blocks.map((b) => (b.id === id ? { ...b, enabled: !b.enabled, dirty: true } : b)),
   );
 }
 
 export function deleteBlock(doc: ZshrcDoc, id: string): ZshrcDoc {
-  return clone(doc, doc.blocks.filter((b) => b.id !== id));
+  return clone(
+    doc,
+    doc.blocks.filter((b) => b.id !== id),
+  );
 }
 
 export function moveBlock(doc: ZshrcDoc, id: string, dir: -1 | 1): ZshrcDoc {
@@ -683,7 +726,10 @@ export function moveBlock(doc: ZshrcDoc, id: string, dir: -1 | 1): ZshrcDoc {
   // find the nearest sibling in the same category in the requested direction
   let target = -1;
   for (let j = idx + dir; j >= 0 && j < doc.blocks.length; j += dir) {
-    if (doc.blocks[j].category === doc.blocks[idx].category && isStructuralKind(doc.blocks[j].kind)) {
+    if (
+      doc.blocks[j].category === doc.blocks[idx].category &&
+      isStructuralKind(doc.blocks[j].kind)
+    ) {
       target = j;
       break;
     }
@@ -699,7 +745,10 @@ function isStructuralKind(k: BlockKind): boolean {
   return k !== "blank" && k !== "comment" && k !== "section";
 }
 
-export function addBlock(doc: ZshrcDoc, block: Partial<Block> & { kind: BlockKind; category: Category }): ZshrcDoc {
+export function addBlock(
+  doc: ZshrcDoc,
+  block: Partial<Block> & { kind: BlockKind; category: Category },
+): ZshrcDoc {
   const created = newBlock({
     raw: [],
     enabled: true,
@@ -737,7 +786,7 @@ export function isStructured(b: Block): boolean {
 /** Blocks that should appear as cards in the structured views (hide blank/section noise). */
 export function visibleBlocks(doc: ZshrcDoc, category: Category): Block[] {
   return doc.blocks.filter(
-    (b) => b.category === category && b.kind !== "blank" && b.kind !== "section"
+    (b) => b.category === category && b.kind !== "blank" && b.kind !== "section",
   );
 }
 
