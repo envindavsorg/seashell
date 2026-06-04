@@ -23,10 +23,11 @@ export function Nav({ theme, onToggle }: { theme: "dark" | "light"; onToggle: ()
           <button
             type="button"
             onClick={onToggle}
-            aria-label="toggle theme"
+            aria-label={theme === "dark" ? "switch to light theme" : "switch to dark theme"}
+            aria-pressed={theme === "dark"}
             className="grid h-8 w-8 place-items-center border border-border text-muted hover:text-fg"
           >
-            {theme === "dark" ? "◐" : "◑"}
+            <span aria-hidden>{theme === "dark" ? "◐" : "◑"}</span>
           </button>
           <a
             href={REPO}

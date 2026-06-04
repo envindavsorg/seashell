@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@fontsource-variable/geist-mono": "^5.2.8",
+    "clsx": "^2.1.1",
+    "motion": "^12.40.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.0",

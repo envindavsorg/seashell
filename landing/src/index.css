@@ -60,6 +60,8 @@
   }
   html {
     scroll-behavior: smooth;
+    /* anchored sections clear the 56px sticky nav */
+    scroll-padding-top: 4rem;
   }
   body {
     background-color: var(--bg);
@@ -89,6 +91,11 @@
     color: inherit;
     text-decoration: none;
   }
+  /* keyboard focus: brand ring, offset so it reads on any surface (incl. the green CTAs) */
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
   ::-webkit-scrollbar {
     width: 10px;
   }
@@ -96,6 +103,36 @@
     background: var(--border);
     border: 2px solid var(--bg);
     border-radius: 0;
+  }
+}
+
+/* aceternity animations (Tailwind v4 CSS-first — was a tailwind.config plugin upstream) */
+@theme {
+  --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
+  --animate-meteor-effect: meteor linear infinite;
+
+  @keyframes spotlight {
+    0% {
+      opacity: 0;
+      transform: translate(-72%, -62%) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -40%) scale(1);
+    }
+  }
+  @keyframes meteor {
+    0% {
+      transform: rotate(215deg) translateX(0);
+      opacity: 0.7;
+    }
+    70% {
+      opacity: 0.7;
+    }
+    100% {
+      transform: rotate(215deg) translateX(-500px);
+      opacity: 0;
+    }
   }
 }
 
@@ -124,5 +161,14 @@
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .animate-spotlight {
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, -40%);
+  }
+  .animate-meteor-effect {
+    animation: none;
+    opacity: 0;
   }
 }

@@ -12,6 +12,8 @@
     />
     <meta name="theme-color" content="#0e1014" />
     <link rel="canonical" href="https://seashell.cuzeacflorin.fr/" />
+    <!-- the hero banner is the LCP element; start its fetch during HTML parse -->
+    <link rel="preload" as="image" href="./banner.png" fetchpriority="high" />
 
     <!-- Open Graph / social previews -->
     <meta property="og:type" content="website" />
@@ -43,7 +45,11 @@
     <script>
       try {
         const t = localStorage.getItem("seashell-theme");
-        if (t) document.documentElement.setAttribute("data-theme", t);
+        if (t) {
+          document.documentElement.setAttribute("data-theme", t);
+          const m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute("content", t === "dark" ? "#0e1014" : "#f7f8fa");
+        }
       } catch {}
     </script>
   </head>

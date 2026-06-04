@@ -1,4 +1,5 @@
 import { Reveal } from "./Reveal";
+import { TextGenerateEffect } from "./ui/text-generate-effect";
 
 const CHECKS: { title: string; body: string }[] = [
   {
@@ -26,7 +27,7 @@ export function Safety() {
         <Reveal>
           <p className="mono text-[11px] tracking-[0.12em] text-brand">the cardinal rule</p>
           <h2 className="mt-3 text-[clamp(28px,5vw,52px)] leading-[0.96] tracking-tight">
-            it never corrupts your file
+            <TextGenerateEffect words="it never corrupts your file" />
           </h2>
           <p className="mt-5 mono text-[13px] leading-relaxed text-muted">
             safety isn't a feature here — it's the architecture. a test suite proves it against a

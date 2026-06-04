@@ -1,4 +1,5 @@
 import { Reveal } from "./Reveal";
+import { HoverEffect } from "./ui/card-hover-effect";
 
 const ITEMS: { title: string; body: string }[] = [
   {
@@ -42,14 +43,7 @@ export function Features() {
         </h2>
       </Reveal>
 
-      <div className="mt-12 grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-        {ITEMS.map((it) => (
-          <div key={it.title} className="bg-bg p-5 transition-colors hover:bg-surface">
-            <h3 className="text-[16px] leading-tight">{it.title}</h3>
-            <p className="mt-2 mono text-[12px] leading-relaxed text-muted">{it.body}</p>
-          </div>
-        ))}
-      </div>
+      <HoverEffect items={ITEMS} className="mt-12 border border-border bg-border" />
     </section>
   );
 }
