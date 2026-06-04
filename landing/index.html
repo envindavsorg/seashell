@@ -51,6 +51,16 @@
           if (m) m.setAttribute("content", t === "dark" ? "#0e1014" : "#f7f8fa");
         }
       } catch {}
+      // browser-initiated scrolls (restoring position on refresh, jumping to a #hash)
+      // must be instant — with the global scroll-behavior:smooth they would animate and
+      // the page "scrolls by itself" on reload. only user-initiated clicks should glide,
+      // so smooth is re-enabled on the first interaction (which precedes any anchor click).
+      document.documentElement.style.scrollBehavior = "auto";
+      const enableSmooth = () => {
+        document.documentElement.style.scrollBehavior = "";
+      };
+      window.addEventListener("pointerdown", enableSmooth, { once: true, capture: true });
+      window.addEventListener("keydown", enableSmooth, { once: true, capture: true });
     </script>
   </head>
   <body>
